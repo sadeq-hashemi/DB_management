@@ -30,6 +30,8 @@ from re import sub
 
 columnSeparator = "|"
 allitems = []
+allbids = []
+allusers = []
 # Dictionary of months used for date transformation
 MONTHS = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',\
         'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
@@ -68,16 +70,12 @@ def transformDollar(money):
         return money
     return sub(r'[^\d.]', '', money)
 
-"""
-Parses a single json file. Currently, there's a loop that iterates over each
-item in the data set. Your job is to extend this functionality to create all
-of the necessary SQL tables for your database.
-"""
+
 
 """
 Adds a string containing a value for all columns to the items list
 ItemID | Name | Categories | Currently | Buy_Price | First_Bid | 
-Number_of_Bids | 
+Number_of_Bids | Started | Ends | Description | UserID (seller)
 """
 def getItem(item):
     itm = str(item['ItemID']) + columnSeparator + item['Name'] + columnSeparator #adds ID and Name 
@@ -86,12 +84,27 @@ def getItem(item):
     itm += i + columnSeparator #add last Category with a separator
     itm += item['Currently'] + columnSeparator
     if 'Buy_Price' in item : 
-      itm += item['Buy_Price'] + columnSeparator
+      itm += transformDollar(item['Buy_Price']) + columnSeparator
     else: 
       itm += 'NULL' + columnSeparator
-    itm = itm + item['First_Bid'] + columnSeparator + item['Number_of_Bids'] + columnSeparator
+    itm = itm + transformDollar(item['First_Bid']) + columnSeparator + item['Number_of_Bids'] + columnSeparator
+    itm += transformDttm(item['Started']) + columnSeparator + transformDttm(item['Ends']) + columnSeparator
+    if item['Description'] is None :
+      itm += 'NULL' + columnSeparator
+    else : 
+      itm += item['Description'] + columnSeparator
+    itm += item['Seller']['UserID'] + columnSeparator
     return itm
 
+"""
+Gets all user info and adds as string in a list
+
+"""
+"""
+Parses a single json file. Currently, there's a loop that iterates over each
+item in the data set. Your job is to extend this functionality to create all
+of the necessary SQL tables for your database.
+"""
 def parseJson(json_file):
     with open(json_file, 'r') as f:
         items = loads(f.read())['Items'] # creates a Python dictionary of Items for the supplied json file
@@ -116,7 +129,8 @@ def main(argv):
     for f in argv[1:]:
         if isJson(f):
             parseJson(f)
-            print allitems
+	    for itm in allitems:
+              print itm + '\n'
             print "Success parsing " + f
 
 if __name__ == '__main__':
