@@ -1,4 +1,8 @@
-uthor: Firas Abuzaid (fabuzaid@stanford.edu)
+
+"""
+FILE: skeleton_parser.py
+------------------
+Author: Firas Abuzaid (fabuzaid@stanford.edu)
 Author: Perth Charernwattanagul (puch@stanford.edu)
 Modified: 04/21/2014
 
@@ -25,7 +29,7 @@ from json import loads
 from re import sub
 
 columnSeparator = "|"
-
+allitems = []
 # Dictionary of months used for date transformation
 MONTHS = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',\
         'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
@@ -69,6 +73,25 @@ Parses a single json file. Currently, there's a loop that iterates over each
 item in the data set. Your job is to extend this functionality to create all
 of the necessary SQL tables for your database.
 """
+
+"""
+Adds a string containing a value for all columns to the items list
+ItemID | Name | Categories | Currently | Buy_Price | First_Bid | 
+Number_of_Bids | 
+"""
+def getItem(item):
+    itm = str(item['ItemID']) + columnSeparator + item['Name'] + columnSeparator #adds ID and Name 
+    for i in item['Category'][:-1]: #for every available category, adds to string separated by a comma
+      itm = itm + i + ", "
+    itm += i + columnSeparator #add last Category with a separator
+    itm += item['Currently'] + columnSeparator
+    if 'Buy_Price' in item : 
+      itm += item['Buy_Price'] + columnSeparator
+    else: 
+      itm += 'NULL' + columnSeparator
+    itm = itm + item['First_Bid'] + columnSeparator + item['Number_of_Bids'] + columnSeparator
+    return itm
+
 def parseJson(json_file):
     with open(json_file, 'r') as f:
         items = loads(f.read())['Items'] # creates a Python dictionary of Items for the supplied json file
@@ -78,6 +101,7 @@ def parseJson(json_file):
             given `json_file' and generate the necessary .dat files to generate
             the SQL tables based on your relation design
             """
+            allitems.append(getItem(item))
             pass
 
 """
@@ -92,8 +116,8 @@ def main(argv):
     for f in argv[1:]:
         if isJson(f):
             parseJson(f)
+            print allitems
             print "Success parsing " + f
 
 if __name__ == '__main__':
     main(sys.argv)
-
