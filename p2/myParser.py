@@ -98,8 +98,39 @@ def getItem(item):
 
 """
 Gets all user info and adds as string in a list
+all users have a UserID, Location, Country, and Rating
+UserID | Rating | Location | Country 
+"""
+def getUser(item):
+    
+    usr = item['Seller']['UserID'] + columnSeparator + item['Seller']['Rating'] \
+         + columnSeparator + item['Location'] + columnSeparator + item['Country']
+    return usr
 
 """
+Collects all info relating to bids and bidders. Bidder info will be added as user
+and all details of the bid will go in a seperate list that links with the user
+itemID | userID | time | Amount
+"""
+def getBid(item):
+  if item['Bids'] is None :
+    return 1
+  for bid in item['Bids']:
+    usr = bid['Bid']['Bidder']['UserID'] + columnSeparator + bid['Bid']['Bidder']['Rating'] + columnSeparator
+    if 'Location' in bid['Bid']['Bidder']: 
+      usr += bid['Bid']['Bidder']['Location'] + columnSeparator
+    else: 
+      usr += 'NULL' + columnSeparator
+    if 'Country' in bid['Bid']['Bidder']: 
+      usr += bid['Bid']['Bidder']['Country'] + columnSeparator
+    else:
+      usr += 'NULL' + columnSeparator
+
+    allusers.append(usr)
+    bid = item['ItemID']+ columnSeparator + bid['Bid']['Bidder']['UserID'] +  columnSeparator +\
+     transformDttm(bid['Bid']['Time']) +  columnSeparator + transformDollar(bid['Bid']['Amount']) + columnSeparator 
+    allbids.append(bid)
+  return 
 """
 Parses a single json file. Currently, there's a loop that iterates over each
 item in the data set. Your job is to extend this functionality to create all
@@ -115,6 +146,8 @@ def parseJson(json_file):
             the SQL tables based on your relation design
             """
             allitems.append(getItem(item))
+            allusers.append(getUser(item))
+            getBid(item)
             pass
 
 """
@@ -129,7 +162,7 @@ def main(argv):
     for f in argv[1:]:
         if isJson(f):
             parseJson(f)
-	    for itm in allitems:
+	    for itm in allbids:
               print itm + '\n'
             print "Success parsing " + f
 
