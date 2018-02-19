@@ -149,6 +149,25 @@ def parseJson(json_file):
             allusers.append(getUser(item))
             getBid(item)
             pass
+    f.close()
+"""
+writes the collected lists of items, users, and bids to items.dat, users.dat, and bids.dat`
+"""
+def writeData():
+    with open('items.dat', 'w') as f:
+      for item in allitems: 
+        f.write(item)
+      f.close()
+
+    with open('users.dat', 'w') as f:
+      for usr in allusers:
+        f.write(usr)
+      f.close()
+
+    with open('bids.dat', 'w') as f:
+      for bid in allbids:
+        f.write(bid)
+      f.close()
 
 """
 Loops through each json files provided on the command line and passes each file
@@ -162,9 +181,9 @@ def main(argv):
     for f in argv[1:]:
         if isJson(f):
             parseJson(f)
-	    for itm in allbids:
-              print itm + '\n'
+#	    for itm in allbids:
+#              print itm + '\n'
             print "Success parsing " + f
-
+    writeData()
 if __name__ == '__main__':
     main(sys.argv)
