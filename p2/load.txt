@@ -2,8 +2,12 @@
 
 .import items.dat Items
 .import users.dat AuctionUsers 
+.import bids.dat Bids
 
 update Items set Buy_Price = null where Buy_Price = 'NULL';
+
 update AuctionUsers set Location = null where Location = 'NULL';
 update AuctionUsers set Country = null where Country = 'NULL';
+
 update Items set Buy_Price = null where Buy_Price = 'NULL';
+

@@ -78,22 +78,37 @@ ItemID | Name | Categories | Currently | Buy_Price | First_Bid |
 Number_of_Bids | Started | Ends | Description | UserID (seller)
 """
 def getItem(item):
-    itm = str(item['ItemID']) + columnSeparator + item['Name'] + columnSeparator #adds ID and Name 
+    itm = str(item['ItemID']) + columnSeparator
+
+    name = item['Name'].replace("'","''")
+    name = name.replace('"', '""')
+    itm += '"' + name + '"' + columnSeparator #adds ID and Name 
+
+    itm += '"'
     for i in item['Category'][:-1]: #for every available category, adds to string separated by a comma
-      itm = itm + i + ", "
-    itm += i + columnSeparator #add last Category with a separator
+      tmp = i.replace('"','""')
+      tmp = i.replace("'", "''")
+      itm += tmp + ", "
+    i = i.replace('"', '""')
+    i = i.replace("'", "''")
+    itm += i+ '"' + columnSeparator #add last Category with a separator
+
     itm += item['Currently'] + columnSeparator
+
     if 'Buy_Price' in item : 
       itm += transformDollar(item['Buy_Price']) + columnSeparator
     else: 
       itm += 'NULL' + columnSeparator
+
     itm = itm + transformDollar(item['First_Bid']) + columnSeparator + item['Number_of_Bids'] + columnSeparator
     itm += transformDttm(item['Started']) + columnSeparator + transformDttm(item['Ends']) + columnSeparator
+
     if item['Description'] is None :
       itm += 'NULL' + columnSeparator
     else : 
       itm += item['Description'] + columnSeparator
     itm += item['Seller']['UserID'] + columnSeparator
+
     return itm
 
 """
