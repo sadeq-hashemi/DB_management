@@ -1,6 +1,6 @@
 drop table if exists AuctionUsers;
 create table AuctionUsers(
-UserID INT NOT NULL, 
+UserID VARCHAR(50) NOT NULL, 
 Rating INT NOT NULL,
 Location CHAR(50),  
 Country CHAR(50), 
@@ -17,9 +17,9 @@ Buy_Price REAL,
 First_Bid REAL NOT NULL,
 Number_of_bids INTEGER NOT NULL,
 Started CHAR(20) NOT NULL, 
-Ends CHAR(20) NOT NULL,
+Ends CHAR(50) NOT NULL,
 Description VARCHAR(100), 
-UserID INTEGER NOT NULL,
+UserID VARCHAR(50) NOT NULL,
 PRIMARY KEY (ItemID),
 FOREIGN KEY (UserID) REFERENCES AuctionUsers(UserID) ON UPDATE CASCADE  
 );
@@ -27,7 +27,7 @@ FOREIGN KEY (UserID) REFERENCES AuctionUsers(UserID) ON UPDATE CASCADE
 drop table if exists Bids;
 create table Bids(
 ItemID INTEGER NOT NULL, 
-UserID INTEGER NOT NULL, 
+UserID VARCHAR(50) NOT NULL, 
 Time CHAR(20) NOT NULL, 
 Amount REAL NOT NULL,
 PRIMARY KEY (ItemID, UserID, Time),

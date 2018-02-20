@@ -106,8 +106,11 @@ def getItem(item):
     if item['Description'] is None :
       itm += 'NULL' + columnSeparator
     else : 
-      itm += item['Description'] + columnSeparator
-    itm += item['Seller']['UserID'] + columnSeparator
+      desc = item['Description'].replace('"', '""')
+      desc = desc.replace("'", "''")
+      itm += '"' + desc + '"' + columnSeparator
+
+    itm += item['Seller']['UserID']
 
     return itm
 
@@ -137,13 +140,13 @@ def getBid(item):
     else: 
       usr += 'NULL' + columnSeparator
     if 'Country' in bid['Bid']['Bidder']: 
-      usr += bid['Bid']['Bidder']['Country'] + columnSeparator
+      usr += bid['Bid']['Bidder']['Country']
     else:
-      usr += 'NULL' + columnSeparator
+      usr += 'NULL'
 
     allusers.append(usr)
     bid = item['ItemID']+ columnSeparator + bid['Bid']['Bidder']['UserID'] +  columnSeparator +\
-     transformDttm(bid['Bid']['Time']) +  columnSeparator + transformDollar(bid['Bid']['Amount']) + columnSeparator 
+     transformDttm(bid['Bid']['Time']) +  columnSeparator + transformDollar(bid['Bid']['Amount']) 
     allbids.append(bid)
   return 
 """
@@ -165,6 +168,7 @@ def parseJson(json_file):
             getBid(item)
             pass
     f.close()
+
 """
 writes the collected lists of items, users, and bids to items.dat, users.dat, and bids.dat`
 """
@@ -172,16 +176,22 @@ def writeData():
     with open('items.dat', 'w') as f:
       for item in allitems: 
         f.write(item)
+        f.write('\n')
+        print item
       f.close()
 
     with open('users.dat', 'w') as f:
       for usr in allusers:
         f.write(usr)
+        f.write('\n')
+        print usr
       f.close()
 
     with open('bids.dat', 'w') as f:
       for bid in allbids:
         f.write(bid)
+        f.write('\n')
+        print bid
       f.close()
 
 """
