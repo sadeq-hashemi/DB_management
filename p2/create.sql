@@ -24,6 +24,14 @@ PRIMARY KEY (ItemID),
 FOREIGN KEY (UserID) REFERENCES AuctionUsers(UserID) ON UPDATE CASCADE  
 );
 
+drop table if exists Category;
+create table Category(
+  ItemID INT NOT NULL,
+  Category VARCHAR(256) NOT NULL,
+  PRIMARY KEY (ItemID, Category),
+  FOREIGN KEY (ItemID) REFERENCES Items (ItemID)
+);
+
 drop table if exists Bids;
 create table Bids(
 ItemID INTEGER NOT NULL, 
