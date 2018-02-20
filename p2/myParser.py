@@ -32,6 +32,7 @@ columnSeparator = "|"
 allitems = []
 allbids = []
 allusers = []
+allcategories = []
 # Dictionary of months used for date transformation
 MONTHS = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',\
         'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
@@ -84,15 +85,13 @@ def getItem(item):
     name = name.replace('"', '""')
     itm += '"' + name + '"' + columnSeparator #adds ID and Name 
 
-    itm += '"'
-    for i in item['Category'][:-1]: #for every available category, adds to string separated by a comma
+    for i in item['Category']: #for every available category, adds to string separated by a comma
       tmp = i.replace('"','""')
       tmp = i.replace("'", "''")
-      itm += tmp + ", "
-    i = i.replace('"', '""')
-    i = i.replace("'", "''")
-    itm += i+ '"' + columnSeparator #add last Category with a separator
+      cat = '"' + tmp + '"' + columnSeparator + item['ItemID']
+      allcategories.append(cat)
 
+   
     itm += item['Currently'] + columnSeparator
 
     if 'Buy_Price' in item : 
@@ -177,23 +176,28 @@ def writeData():
       for item in allitems: 
         f.write(item)
         f.write('\n')
-        print item
+        #print item
       f.close()
 
     with open('users.dat', 'w') as f:
       for usr in allusers:
         f.write(usr)
         f.write('\n')
-        print usr
+        #print usr
       f.close()
 
     with open('bids.dat', 'w') as f:
       for bid in allbids:
         f.write(bid)
         f.write('\n')
-        print bid
+        #print bid
       f.close()
 
+    with open('categories.dat', 'w') as f: 
+      for cat in allcategories: 
+        f.write(cat)
+        f.write('\n')
+      f.close()
 """
 Loops through each json files provided on the command line and passes each file
 to the parser
