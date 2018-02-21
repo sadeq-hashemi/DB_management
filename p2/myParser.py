@@ -31,7 +31,7 @@ from re import sub
 columnSeparator = "|"
 allitems = []
 allbids = []
-allusers = []
+allusers = set()
 allcategories = []
 # Dictionary of months used for date transformation
 MONTHS = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',\
@@ -110,7 +110,6 @@ def getItem(item):
       itm += '"' + desc + '"' + columnSeparator
 
     itm += item['Seller']['UserID']
-
     return itm
 
 """
@@ -143,7 +142,9 @@ def getBid(item):
     else:
       usr += 'NULL'
 
-    allusers.append(usr)
+
+    if usr not in allusers:  
+      allusers.add(usr)
     bid = item['ItemID']+ columnSeparator + bid['Bid']['Bidder']['UserID'] +  columnSeparator +\
      transformDttm(bid['Bid']['Time']) +  columnSeparator + transformDollar(bid['Bid']['Amount']) 
     allbids.append(bid)
@@ -163,11 +164,65 @@ def parseJson(json_file):
             the SQL tables based on your relation design
             """
             allitems.append(getItem(item))
-            allusers.append(getUser(item))
+            usr = getUser(item)
+            if usr not in allusers:
+              allusers.add(usr)
             getBid(item)
             pass
     f.close()
 
+
+"""
+checks the lists for all references to exist
+"""
+def checkData():
+  err = 0
+  userset = set()
+  itemset = set()
+  bidset = set()
+  for usr in allusers:
+    a = usr.split('|')
+    if a[0] in userset:
+      err+= 1
+      print 'duplicate user found'
+    else: 
+      userset.add(a[0])
+
+  for itm in allitems:
+    a = itm.split('|')
+    ID = a[0]
+    seller = a[9]
+    if seller not in userset:
+      err+=1 
+      print 'item seller not found'
+    if ID in itemset:
+      err+=1
+      print 'duplicate item found'
+    else: 
+      itemset.add(ID)
+ 
+  for bid in allbids:
+     a = bid.split('|')
+     item = a[0] 
+     bidder= a[1]
+     time = a[2]
+     all = item + bidder + time
+     if all in bidset: 
+       print("duplicate bid")
+     else: 
+       bidset.add(all)
+     if item not in itemset:
+       err+=1
+       print 'bid item not in items'
+     if bidder not in userset:
+       err +=1 
+       print 'bidder ID not in users'
+
+  for cat in allcategories:
+     a = cat.split('|')
+     item = a[1]
+     if item not in itemset:
+       print ('item reference in category does not exist in items')
 """
 writes the collected lists of items, users, and bids to items.dat, users.dat, and bids.dat`
 """
@@ -198,6 +253,7 @@ def writeData():
         f.write(cat)
         f.write('\n')
       f.close()
+
 """
 Loops through each json files provided on the command line and passes each file
 to the parser
@@ -214,5 +270,6 @@ def main(argv):
 #              print itm + '\n'
             print "Success parsing " + f
     writeData()
+    checkData()
 if __name__ == '__main__':
     main(sys.argv)

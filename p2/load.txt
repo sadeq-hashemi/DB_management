@@ -1,13 +1,20 @@
 .separator |
 
-.import users.dat AuctionUsers 
+.import users.dat AuctionUsers; 
+
+
+.import items.dat Items;
+update Items set Buy_Price = null where Buy_Price = 'NULL';
+
+
+.import bids.dat Bids;
+
+update Items set Buy_Price = null where Buy_Price = 'NULL';
+
 update AuctionUsers set Location = null where Location = 'NULL';
 update AuctionUsers set Country = null where Country = 'NULL';
 
-.import items.dat Items
-update Items set Buy_Price = null where Buy_Price = 'NULL';
-
-.import bids.dat Bids
-
+.import categories.dat Categories;
+update Categories set Category = null where Category = 'NULL';
 
 
