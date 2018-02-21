@@ -77,7 +77,7 @@ Transform strings that my have single or double quotation into unescape format
 def transformString(str):
     temp = str.replace('"', '""')
     #temp = temp.replace("'", "''")
-    temp = "'" + "'"
+    temp = "'"+ temp + "'"
     return temp
 """
 Adds a string containing a value for all columns to the items list
@@ -98,7 +98,7 @@ def getItem(item):
       allcategories.append(cat)
 
    
-    itm += item['Currently'] + columnSeparator
+    itm += transformDollar(item['Currently']) + columnSeparator
 
     if 'Buy_Price' in item : 
       itm += transformDollar(item['Buy_Price']) + columnSeparator
