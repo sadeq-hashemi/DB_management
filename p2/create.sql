@@ -11,7 +11,7 @@ drop table if exists Items;
 create table Items(
 ItemID INTEGER NOT NULL,
 Name VARCHAR(30) NOT NULL, 
-Category VARCHAR(20) NOT NULL, 
+--Category VARCHAR(20) NOT NULL, 
 Currently REAL NOT NULL,
 Buy_Price REAL,
 First_Bid REAL NOT NULL,
@@ -22,6 +22,14 @@ Description VARCHAR(100),
 UserID INTEGER NOT NULL,
 PRIMARY KEY (ItemID),
 FOREIGN KEY (UserID) REFERENCES AuctionUsers(UserID) ON UPDATE CASCADE  
+);
+
+drop table if exists Categories;
+create table Categories(
+  ItemID INT NOT NULL,
+  Category VARCHAR(256) NOT NULL,
+  PRIMARY KEY (ItemID, Category),
+  FOREIGN KEY (ItemID) REFERENCES Items (ItemID) ON UPDATE CASCADE
 );
 
 drop table if exists Bids;
