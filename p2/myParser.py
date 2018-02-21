@@ -71,8 +71,14 @@ def transformDollar(money):
         return money
     return sub(r'[^\d.]', '', money)
 
-
-
+"""
+Transform strings that my have single or double quotation into unescape format
+"""
+def transformString(str):
+    temp = str.replace('"', '""')
+    temp = temp.replace("'", "''")
+    temp = '"' + '"'
+    return temp
 """
 Adds a string containing a value for all columns to the items list
 ItemID | Name | Categories | Currently | Buy_Price | First_Bid | 
@@ -81,14 +87,14 @@ Number_of_Bids | Started | Ends | Description | UserID (seller)
 def getItem(item):
     itm = str(item['ItemID']) + columnSeparator
 
-    name = item['Name'].replace("'","''")
-    name = name.replace('"', '""')
-    itm += '"' + name + '"' + columnSeparator #adds ID and Name 
+    #name = item['Name'].replace("'","''")
+    #name = name.replace('"', '""')
+    itm += transformString(item['Name']) + columnSeparator #adds ID and Name 
 
     for i in item['Category']: #for every available category, adds to string separated by a comma
-      tmp = i.replace('"','""')
-      tmp = i.replace("'", "''")
-      cat = '"' + tmp + '"' + columnSeparator + item['ItemID']
+      #tmp = i.replace('"','""')
+      #tmp = i.replace("'", "''")
+      cat = transformString(i) + columnSeparator + item['ItemID']
       allcategories.append(cat)
 
    
@@ -105,9 +111,9 @@ def getItem(item):
     if item['Description'] is None :
       itm += 'NULL' + columnSeparator
     else : 
-      desc = item['Description'].replace('"', '""')
-      desc = desc.replace("'", "''")
-      itm += '"' + desc + '"' + columnSeparator
+      #desc = item['Description'].replace('"', '""')
+      #desc = desc.replace("'", "''")
+      itm += transformString(item['Description']) + columnSeparator
 
     itm += item['Seller']['UserID']
     return itm
@@ -118,9 +124,8 @@ all users have a UserID, Location, Country, and Rating
 UserID | Rating | Location | Country 
 """
 def getUser(item):
-    
     usr = item['Seller']['UserID'] + columnSeparator + item['Seller']['Rating'] \
-         + columnSeparator + item['Location'] + columnSeparator + item['Country']
+         + columnSeparator + transformString(item['Location']) + columnSeparator + item['Country']
     return usr
 
 """
@@ -134,7 +139,7 @@ def getBid(item):
   for bid in item['Bids']:
     usr = bid['Bid']['Bidder']['UserID'] + columnSeparator + bid['Bid']['Bidder']['Rating'] + columnSeparator
     if 'Location' in bid['Bid']['Bidder']: 
-      usr += bid['Bid']['Bidder']['Location'] + columnSeparator
+      usr += transformString(bid['Bid']['Bidder']['Location']) + columnSeparator
     else: 
       usr += 'NULL' + columnSeparator
     if 'Country' in bid['Bid']['Bidder']: 
@@ -234,6 +239,7 @@ def writeData():
         #print item
       f.close()
 
+    sorted(allusers)
     with open('users.dat', 'w') as f:
       for usr in allusers:
         f.write(usr)
