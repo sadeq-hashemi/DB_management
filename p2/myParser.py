@@ -76,8 +76,8 @@ Transform strings that my have single or double quotation into unescape format
 """
 def transformString(str):
     temp = str.replace('"', '""')
-    temp = temp.replace("'", "''")
-    temp = '"' + '"'
+    #temp = temp.replace("'", "''")
+    temp = "'" + "'"
     return temp
 """
 Adds a string containing a value for all columns to the items list
