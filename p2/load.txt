@@ -3,6 +3,7 @@
 .import items.dat Items
 .import users.dat AuctionUsers 
 .import bids.dat Bids
+.import categories.dat Categories
 
 update Items set Buy_Price = null where Buy_Price = 'NULL';
 
