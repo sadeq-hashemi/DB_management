@@ -29,7 +29,7 @@ create table Categories(
   ItemID INT NOT NULL,
   Category VARCHAR(256) NOT NULL,
   PRIMARY KEY (ItemID, Category),
-  FOREIGN KEY (ItemID) REFERENCES Items (ItemID)
+  FOREIGN KEY (ItemID) REFERENCES Items (ItemID) ON UPDATE CASCADE
 );
 
 drop table if exists Bids;
