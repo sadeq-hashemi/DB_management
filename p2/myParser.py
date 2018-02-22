@@ -76,7 +76,6 @@ Transform strings that my have single or double quotation into unescape format
 """
 def transformString(str):
     temp = str.replace('"', '""')
-    #temp = temp.replace("'", "''")
     temp = "'"+ temp + "'"
     return temp
 """
@@ -85,36 +84,42 @@ ItemID | Name | Categories | Currently | Buy_Price | First_Bid |
 Number_of_Bids | Started | Ends | Description | UserID (seller)
 """
 def getItem(item):
+    #Adds ItemID to the string followed by a column separator    
     itm = str(item['ItemID']) + columnSeparator
-
-    #name = item['Name'].replace("'","''")
-    #name = name.replace('"', '""')
+        
+    #Adds name to the string followed by a column separator 
     itm += transformString(item['Name']) + columnSeparator #adds ID and Name 
 
+    #----------------------------    
     for i in item['Category']: #for every available category, adds to string separated by a comma
       #tmp = i.replace('"','""')
       #tmp = i.replace("'", "''")
       cat = transformString(i) + columnSeparator + item['ItemID']
       allcategories.append(cat)
 
-   
+    #Adds currently after having removed the $ sign to the string followed by a column separator     
     itm += transformDollar(item['Currently']) + columnSeparator
 
+    #Adds Buy Price to the string followed by a column separator 
     if 'Buy_Price' in item : 
       itm += transformDollar(item['Buy_Price']) + columnSeparator
     else: 
+      #Add null if there is no buy price
       itm += 'NULL' + columnSeparator
-
+    
+    #Adds the first bid and the number of bids to the string, each followed by a column separator after removing the $ sign
     itm = itm + transformDollar(item['First_Bid']) + columnSeparator + item['Number_of_Bids'] + columnSeparator
+    #Adds the started time and the end time in the correct format to the string, each followed by a column separator 
     itm += transformDttm(item['Started']) + columnSeparator + transformDttm(item['Ends']) + columnSeparator
 
+    #Check if there is a Description
     if item['Description'] is None :
+      #Adds null to the string if there isn't any description followed by a column separator  
       itm += 'NULL' + columnSeparator
     else : 
-      #desc = item['Description'].replace('"', '""')
-      #desc = desc.replace("'", "''")
+      #Adds a description with the correct string format
       itm += transformString(item['Description']) + columnSeparator
-
+    #Adds the UserID to the string
     itm += item['Seller']['UserID']
     return itm
 
@@ -229,9 +234,10 @@ def checkData():
      if item not in itemset:
        print ('item reference in category does not exist in items')
 """
-writes the collected lists of items, users, and bids to items.dat, users.dat, and bids.dat`
+writes the collected lists of items, users, bids and categories to items.dat, users.dat, and bids.dat, categories.dat
 """
 def writeData():
+   #Write items to items.dat
     with open('items.dat', 'w') as f:
       for item in allitems: 
         f.write(item)
@@ -239,21 +245,25 @@ def writeData():
         #print item
       f.close()
 
+    #Sort the users
     sorted(allusers)
+    #Write users to users.dat
     with open('users.dat', 'w') as f:
       for usr in allusers:
         f.write(usr)
         f.write('\n')
         #print usr
       f.close()
-
+    
+    #Write the bids to bids.dat
     with open('bids.dat', 'w') as f:
       for bid in allbids:
         f.write(bid)
         f.write('\n')
         #print bid
       f.close()
-
+    
+    #Write the categories to categories.dat
     with open('categories.dat', 'w') as f: 
       for cat in allcategories: 
         f.write(cat)
@@ -272,9 +282,8 @@ def main(argv):
     for f in argv[1:]:
         if isJson(f):
             parseJson(f)
-#	    for itm in allbids:
-#              print itm + '\n'
             print "Success parsing " + f
+    #Function called to write the four datas: items.dat, users.dat, bids.dat and categories.dat
     writeData()
     checkData()
 if __name__ == '__main__':
