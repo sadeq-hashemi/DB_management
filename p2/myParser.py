@@ -129,6 +129,7 @@ all users have a UserID, Location, Country, and Rating
 UserID | Rating | Location | Country 
 """
 def getUser(item):
+    #Adds UserID, rating, location and country each followed by a colum separator    
     usr = item['Seller']['UserID'] + columnSeparator + item['Seller']['Rating'] \
          + columnSeparator + transformString(item['Location']) + columnSeparator + item['Country']
     return usr
@@ -139,24 +140,37 @@ and all details of the bid will go in a seperate list that links with the user
 itemID | userID | time | Amount
 """
 def getBid(item):
+  #Checks if bids exist      
   if item['Bids'] is None :
     return 1
+
   for bid in item['Bids']:
+    #if bids exist, add the userid, the rating, each followed by column separator             
     usr = bid['Bid']['Bidder']['UserID'] + columnSeparator + bid['Bid']['Bidder']['Rating'] + columnSeparator
+    #Checks if location and contry exist 
     if 'Location' in bid['Bid']['Bidder']: 
+      #If location exist, add it to the string followed by column separator
       usr += transformString(bid['Bid']['Bidder']['Location']) + columnSeparator
     else: 
+      #if location and country does not exist, add null followed by column separator 
       usr += 'NULL' + columnSeparator
+    #Checks if country exists    
     if 'Country' in bid['Bid']['Bidder']: 
+      #If country exist, add it to the string followed by column separator  
       usr += bid['Bid']['Bidder']['Country']
     else:
+      #if location and country does not exist, add null followed by a column separator
       usr += 'NULL'
-
-
+    
+    #Checks if user is not already inside the users list to avoid duplicates
     if usr not in allusers:  
+      #If user is not already in list, add the bidder's userid  
       allusers.add(usr)
+    #Create a bid that will be added to the bids list
+    #Adds itemID, userID, time and amound, each followed by a column separator, to a bid
     bid = item['ItemID']+ columnSeparator + bid['Bid']['Bidder']['UserID'] +  columnSeparator +\
      transformDttm(bid['Bid']['Time']) +  columnSeparator + transformDollar(bid['Bid']['Amount']) 
+    #Add the created bid to the list
     allbids.append(bid)
   return 
 """
@@ -173,10 +187,13 @@ def parseJson(json_file):
             given `json_file' and generate the necessary .dat files to generate
             the SQL tables based on your relation design
             """
+            #Add other items to the list of all items
             allitems.append(getItem(item))
+            #Get a user
             usr = getUser(item)
+            #Checks if user is not already inside the list of all user to avoid duplicates
             if usr not in allusers:
-              allusers.add(usr)
+              allusers.add(usr)    
             getBid(item)
             pass
     f.close()
@@ -260,7 +277,6 @@ def writeData():
       for bid in allbids:
         f.write(bid)
         f.write('\n')
-        #print bid
       f.close()
     
     #Write the categories to categories.dat
