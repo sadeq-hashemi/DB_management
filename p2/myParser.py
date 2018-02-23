@@ -76,8 +76,12 @@ Transform strings that my have single or double quotation into unescape format
 """
 def transformString(str):
     temp = str.replace('"', '""')
+<<<<<<< HEAD
     #temp = temp.replace("'", "''")
     temp = '"'+ temp + '"'
+=======
+    temp = "'"+ temp + "'"
+>>>>>>> 6113019a8b2561e425cbe853b1eda23acbcddaa9
     return temp
 """
 Adds a string containing a value for all columns to the items list
@@ -85,36 +89,42 @@ ItemID | Name | Categories | Currently | Buy_Price | First_Bid |
 Number_of_Bids | Started | Ends | Description | UserID (seller)
 """
 def getItem(item):
+    #Adds ItemID to the string followed by a column separator    
     itm = str(item['ItemID']) + columnSeparator
-
-    #name = item['Name'].replace("'","''")
-    #name = name.replace('"', '""')
+        
+    #Adds name to the string followed by a column separator 
     itm += transformString(item['Name']) + columnSeparator #adds ID and Name 
 
+    #----------------------------    
     for i in item['Category']: #for every available category, adds to string separated by a comma
       #tmp = i.replace('"','""')
       #tmp = i.replace("'", "''")
       cat = transformString(i) + columnSeparator + item['ItemID']
       allcategories.append(cat)
 
-   
+    #Adds currently after having removed the $ sign to the string followed by a column separator     
     itm += transformDollar(item['Currently']) + columnSeparator
 
+    #Adds Buy Price to the string followed by a column separator 
     if 'Buy_Price' in item : 
       itm += transformDollar(item['Buy_Price']) + columnSeparator
     else: 
+      #Add null if there is no buy price
       itm += 'NULL' + columnSeparator
-
+    
+    #Adds the first bid and the number of bids to the string, each followed by a column separator after removing the $ sign
     itm = itm + transformDollar(item['First_Bid']) + columnSeparator + item['Number_of_Bids'] + columnSeparator
+    #Adds the started time and the end time in the correct format to the string, each followed by a column separator 
     itm += transformDttm(item['Started']) + columnSeparator + transformDttm(item['Ends']) + columnSeparator
 
+    #Check if there is a Description
     if item['Description'] is None :
+      #Adds null to the string if there isn't any description followed by a column separator  
       itm += 'NULL' + columnSeparator
     else : 
-      #desc = item['Description'].replace('"', '""')
-      #desc = desc.replace("'", "''")
+      #Adds a description with the correct string format
       itm += transformString(item['Description']) + columnSeparator
-
+    #Adds the UserID to the string
     itm += item['Seller']['UserID']
     return itm
 
@@ -124,6 +134,7 @@ all users have a UserID, Location, Country, and Rating
 UserID | Rating | Location | Country 
 """
 def getUser(item):
+    #Adds UserID, rating, location and country each followed by a colum separator    
     usr = item['Seller']['UserID'] + columnSeparator + item['Seller']['Rating'] \
          + columnSeparator + transformString(item['Location']) + columnSeparator + item['Country']
     return usr
@@ -134,24 +145,37 @@ and all details of the bid will go in a seperate list that links with the user
 itemID | userID | time | Amount
 """
 def getBid(item):
+  #Checks if bids exist      
   if item['Bids'] is None :
     return 1
+
   for bid in item['Bids']:
+    #if bids exist, add the userid, the rating, each followed by column separator             
     usr = bid['Bid']['Bidder']['UserID'] + columnSeparator + bid['Bid']['Bidder']['Rating'] + columnSeparator
+    #Checks if location and contry exist 
     if 'Location' in bid['Bid']['Bidder']: 
+      #If location exist, add it to the string followed by column separator
       usr += transformString(bid['Bid']['Bidder']['Location']) + columnSeparator
     else: 
+      #if location and country does not exist, add null followed by column separator 
       usr += 'NULL' + columnSeparator
+    #Checks if country exists    
     if 'Country' in bid['Bid']['Bidder']: 
+      #If country exist, add it to the string followed by column separator  
       usr += bid['Bid']['Bidder']['Country']
     else:
+      #if location and country does not exist, add null followed by a column separator
       usr += 'NULL'
-
-
+    
+    #Checks if user is not already inside the users list to avoid duplicates
     if usr not in allusers:  
+      #If user is not already in list, add the bidder's userid  
       allusers.add(usr)
+    #Create a bid that will be added to the bids list
+    #Adds itemID, userID, time and amound, each followed by a column separator, to a bid
     bid = item['ItemID']+ columnSeparator + bid['Bid']['Bidder']['UserID'] +  columnSeparator +\
      transformDttm(bid['Bid']['Time']) +  columnSeparator + transformDollar(bid['Bid']['Amount']) 
+    #Add the created bid to the list
     allbids.append(bid)
   return 
 """
@@ -168,10 +192,13 @@ def parseJson(json_file):
             given `json_file' and generate the necessary .dat files to generate
             the SQL tables based on your relation design
             """
+            #Add other items to the list of all items
             allitems.append(getItem(item))
+            #Get a user
             usr = getUser(item)
+            #Checks if user is not already inside the list of all user to avoid duplicates
             if usr not in allusers:
-              allusers.add(usr)
+              allusers.add(usr)    
             getBid(item)
             pass
     f.close()
@@ -229,9 +256,10 @@ def checkData():
      if item not in itemset:
        print ('item reference in category does not exist in items')
 """
-writes the collected lists of items, users, and bids to items.dat, users.dat, and bids.dat`
+writes the collected lists of items, users, bids and categories to items.dat, users.dat, and bids.dat, categories.dat
 """
 def writeData():
+   #Write items to items.dat
     with open('items.dat', 'w') as f:
       for item in allitems: 
         f.write(item)
@@ -239,21 +267,24 @@ def writeData():
         #print item
       f.close()
 
+    #Sort the users
     sorted(allusers)
+    #Write users to users.dat
     with open('users.dat', 'w') as f:
       for usr in allusers:
         f.write(usr)
         f.write('\n')
         #print usr
       f.close()
-
+    
+    #Write the bids to bids.dat
     with open('bids.dat', 'w') as f:
       for bid in allbids:
         f.write(bid)
         f.write('\n')
-        #print bid
       f.close()
-
+    
+    #Write the categories to categories.dat
     with open('categories.dat', 'w') as f: 
       for cat in allcategories: 
         f.write(cat)
@@ -272,9 +303,8 @@ def main(argv):
     for f in argv[1:]:
         if isJson(f):
             parseJson(f)
-#	    for itm in allbids:
-#              print itm + '\n'
             print "Success parsing " + f
+    #Function called to write the four datas: items.dat, users.dat, bids.dat and categories.dat
     writeData()
     checkData()
 if __name__ == '__main__':
