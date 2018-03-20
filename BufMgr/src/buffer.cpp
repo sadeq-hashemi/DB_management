@@ -14,6 +14,7 @@
 #include "exceptions/bad_buffer_exception.h"
 #include "exceptions/hash_not_found_exception.h"
 
+//uint32_t buff_size; //holds size of table
 namespace badgerdb { 
 
 BufMgr::BufMgr(std::uint32_t bufs)
@@ -30,26 +31,74 @@ BufMgr::BufMgr(std::uint32_t bufs)
 
 	int htsize = ((((int) (bufs * 1.2))*2)/2)+1;
   hashTable = new BufHashTbl (htsize);  // allocate the buffer hash table
-
-  clockHand = bufs - 1;
-}
+  clockHand = bufs - 1; //hand starts from last page
+  //buff_size = bufs;
 
 
 BufMgr::~BufMgr() {
+//flush out all dirty
+//deallocate buffer pool and bufferdesk table
+
 }
 
 void BufMgr::advanceClock()
 {
-
+  //clock hand needs to rotate around a virtual circle from 0 to numBufs - 1
+  clockHand++; 
+  if(clockHand == hashTable.HTSIZE)  //should this work?
+    clockHand = 0;
 }
 
 void BufMgr::allocBuf(FrameId & frame) 
 {
+//refbit is set to true
+//for every clock advance
+  //if refbit is set, unset it
+  //if refbit is not set, page is selected for replacement
+    //assumed that page is not pinned
+    //if dirty, write back to disk 
+    //clear frame
+    //new page is read to location
+
+ bool found = false; 
+  for(FrameId i = 0; i < numBufs && !found; i++) {
+    advanceClock(); //next frame
+    
+    //found invalid page
+    if(!bufDescTable[clockHAnd].valid) {
+      frame = clockHand; 
+      found = true; 
+      continue
+    }
+    //clear ref bit
+    if (bufDescTable[clockHand].refbit) {
+      bufDescTable[clockHand].refbit = true; 
+      continue
+    }
+   //page is pinned
+   if(bufDescTable[clockHand].pinCnt > 0) {
+     continue
+   }
+   //this page can be used, check if it needs to be written 
+   if(bufDescTable[clockHand].dirty) {
+     //write page to memory by sending the address in bufPool that corresponds to our frame 
+     bufDescTable[clockHand].file->writePage(&bufPool[clockHand]);  
+   } 
+
+    //clear entries
+    bufDescTable[i].clear();
+    frame = clockHand;
+    found = true; 
+    
+ }
+  if(!found) //not found throw exception 
+    throw BufferExceededException();
 }
 
 	
 void BufMgr::readPage(File* file, const PageId pageNo, Page*& page)
 {
+
 }
 
 
